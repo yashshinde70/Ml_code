@@ -1,0 +1,55 @@
+
+import pandas as pd
+import seaborn as sns
+import numpy as np
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+
+df=pd.read_csv('sales_data_sample.csv',encoding='Latin-1')
+df.head()
+
+df.isna().sum()
+
+df.dropna(inplace=True)
+df.isna().sum()
+
+df.drop_duplicates(inplace=True)
+
+df.info()
+ 
+df.describe()
+
+df.columns
+
+df.drop(["ORDERNUMBER", "PRICEEACH", "ORDERDATE", "PHONE", "ADDRESSLINE1", "ADDRESSLINE2", "CITY", "STATE", 
+"TERRITORY", "POSTALCODE", "CONTACTLASTNAME", "CONTACTFIRSTNAME"], axis = 1, inplace=True)
+df.head()
+
+list_cat = df.select_dtypes(include=['object']).columns.tolist()
+list_cat
+
+from sklearn import preprocessing
+le = preprocessing.LabelEncoder()
+
+for i in list_cat:
+  df[i]= le.fit_transform(df[i])
+
+X = df[['SALES','PRODUCTCODE']] 
+
+wcss=[]
+for i in range(1,11):
+    km=KMeans(n_clusters=i)
+    km.fit(X)
+    wcss.append(km.inertia_)
+
+#the elbow curve
+plt.figure(figsize=(12,6))
+plt.plot(range(1,11),wcss)
+plt.plot(range(1,11),wcss, linewidth=2, color="red", marker ="8")
+plt.xlabel("K Value")
+plt.xticks(np.arange(1,11,1))
+plt.ylabel("WCSS")
+plt.show()
+
+kmeans = KMeans(n_clusters=11).fit(X)
+kmeans.labels_ 
